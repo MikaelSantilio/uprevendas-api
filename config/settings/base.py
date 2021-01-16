@@ -78,7 +78,8 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "up_revendas.users.apps.UsersConfig",
-    # Your stuff: custom apps go here
+    "up_revendas.cars.apps.CarsConfig",
+    "up_revendas.core.apps.CoreConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
