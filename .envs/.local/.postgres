@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=up_revendas
+POSTGRES_USER=gbMgldEpjEozwpZQpPToqcSLJKyOQzoM
+POSTGRES_PASSWORD=6GOsg4qRaKhYRGUmLfYwiDLy72YNnKVIDIYbZV7KaYs5WlgP9ix4zw6IJYktHO4q
