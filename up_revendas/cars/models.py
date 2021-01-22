@@ -45,5 +45,7 @@ class Car(Base):
     model = models.ForeignKey(Model, related_name="cars", on_delete=models.CASCADE)
     year = models.CharField(max_length=4, choices=YEAR_CHOICES)
     version = models.ForeignKey(Version, related_name="cars", on_delete=models.CASCADE)
-    transmission = models.CharField(max_length=14, choices=TRANSMISSION_CHOICES)
+    # transmission = models.CharField(max_length=14, choices=TRANSMISSION_CHOICES)
     # https://en.wikipedia.org/wiki/Power_steering
+    sale_value = models.FloatField()
+    sold = models.BooleanField(default=False)
