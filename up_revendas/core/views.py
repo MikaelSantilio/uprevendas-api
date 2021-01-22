@@ -7,6 +7,9 @@ from rest_framework.views import APIView
 from up_revendas.core.serializers import PurchaseCreateSerializer, PurchaseSerializer, SaleSerializer
 from up_revendas.cars.serializers import CarSerializer
 
+
+class BankAccountAPIView()
+
 class PurchaseAPIView(APIView):
 
     permission_classes = [AllowAny]
