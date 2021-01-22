@@ -1,18 +1,20 @@
-from django.db import models
 from datetime import date
-from up_revendas.cars.validators import validateCarLicensePlate
-from up_revendas.core.models import Base
+
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from up_revendas.cars.validators import validateCarLicensePlate
+from up_revendas.users.models import Base
 
-class Brand(Base):
+
+class Brand(models.Model):
     name = models.CharField(max_length=32)
 
     def __str__(self):
         return self.name
 
 
-class Model(Base):
+class Model(models.Model):
     name = models.CharField(max_length=32)
     brand = models.ForeignKey(Brand,  related_name="models", on_delete=models.CASCADE)
 
@@ -20,7 +22,7 @@ class Model(Base):
         return f"{self.brand} {self.name}"
 
 
-class Version(Base):
+class Version(models.Model):
     name = models.CharField(max_length=32)
     model = models.ForeignKey(Model, related_name="versions", on_delete=models.CASCADE)
 

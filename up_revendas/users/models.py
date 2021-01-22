@@ -3,7 +3,6 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from up_revendas.core.models import Base
 from up_revendas.users.validators import validate_CPF, validate_phone
 
 
@@ -23,6 +22,15 @@ class User(AbstractUser):
 
         """
         return reverse("users:detail", kwargs={"username": self.username})
+
+
+class Base(models.Model):
+    created_at = models.DateTimeField('Created at', auto_now_add=True)
+    updated_at = models.DateTimeField('Updated', auto_now=True)
+    active = models.BooleanField('Active', default=True)
+
+    class Meta:
+        abstract = True
 
 
 class Function(models.Model):

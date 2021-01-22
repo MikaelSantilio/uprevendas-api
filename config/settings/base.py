@@ -283,7 +283,10 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
 
-# django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
-CORS_URLS_REGEX = r"^/api/.*$"
-# Your stuff...
+# django-cors
 # ------------------------------------------------------------------------------
+# django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
+CORS_URLS_REGEX = r'^.*$'
+
+# django-cors-whitelist - # https://github.com/adamchainz/django-cors-headers#cors_origin_whitelist
+CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST", default=[])
