@@ -13,6 +13,7 @@ class User(AbstractUser):
     name = models.CharField(_("Name of User"), blank=True, max_length=255)
     is_employee = models.BooleanField(default=False)
     is_costumer = models.BooleanField(default=False)
+    is_store_manager = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         """Get url for user's detail view.

@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from up_revendas.cars.validators import validateCarLicensePlate
 from up_revendas.users.models import Base
+from django.forms import ValidationError
 
 
 class Brand(models.Model):
@@ -22,23 +23,39 @@ class Model(models.Model):
         return f"{self.brand} {self.name}"
 
 
-class Version(models.Model):
-    name = models.CharField(max_length=32)
-    model = models.ForeignKey(Model, related_name="versions", on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.model.brand} {self.name}"
-
-
 class Car(Base):
 
     YEAR_CHOICES = (
         (year, year) for year in range(1951, date.today().year + 1)
     )
 
+    CAR_TYPES_CHOICES = (
+        ("hatch", "Hatch"),
+        ("sedan", "Sedã"),
+        ("suv", "SUV"),
+        ("van", "Van/Utilitário"),
+        ("pick-up", "Pick-Up"),
+        ("convertible", "Conversível"),
+        ("sport", "Sport"),
+        ("luxury", "Luxo"),
+    )
+
+    COLOR_CHOICES = (
+        ("black", "Preto"),
+        ("white", "Branco"),
+        ("silver", "Prata"),
+        ("red", "Vermelho"),
+        ("cinza", "Cinza"),
+        ("blue", "Azul"),
+        ("yellow", "Amarelo"),
+        ("green", "Verde"),
+        ("orange", "Laranja"),
+        ("other", "Outra"),
+    )
+
     TRANSMISSION_CHOICES = (
         ("M", _("Manual")),
-        ("A", _("Automatic")),
+        ("AT", _("Automatic")),
         ("SA", _("Semi Automatic"))
     )
 
@@ -46,8 +63,14 @@ class Car(Base):
     brand = models.ForeignKey(Brand, related_name="cars", on_delete=models.CASCADE)
     model = models.ForeignKey(Model, related_name="cars", on_delete=models.CASCADE)
     year = models.CharField(max_length=4, choices=YEAR_CHOICES)
-    version = models.ForeignKey(Version, related_name="cars", on_delete=models.CASCADE)
-    # transmission = models.CharField(max_length=14, choices=TRANSMISSION_CHOICES)
-    # https://en.wikipedia.org/wiki/Power_steering
+    version = models.CharField(max_length=255)
+    transmission = models.CharField(max_length=14, choices=TRANSMISSION_CHOICES)
+    mileage = models.IntegerField()
+    car_type = models.CharField(max_length=12, choices=CAR_TYPES_CHOICES)
+    color = models.CharField(max_length=12, choices=COLOR_CHOICES)
     sale_value = models.FloatField()
     sold = models.BooleanField(default=False)
+
+    def clean(self):
+        if self.brand and self.model and self.brand != self.model.brand:
+            raise ValidationError(message='O modelo não condiz com a marca', code='invalid')

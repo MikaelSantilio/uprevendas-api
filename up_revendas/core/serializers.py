@@ -32,6 +32,7 @@ class SaleSerializer(serializers.ModelSerializer):
     customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all(), required=True)
     seller = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
     value = serializers.FloatField(required=True)
+    bank_account = serializers.PrimaryKeyRelatedField(queryset=BankAccount.objects.all(), required=True)
 
     class Meta:
         model = Sale

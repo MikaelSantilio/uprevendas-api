@@ -1,14 +1,33 @@
+from django.db import DatabaseError, transaction
 from rest_framework import status
-from django.db import transaction
-from django.db import DatabaseError
-from rest_framework.permissions import AllowAny
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from up_revendas.core.serializers import PurchaseCreateSerializer, PurchaseSerializer, SaleSerializer
+from django.shortcuts import get_object_or_404
+
 from up_revendas.cars.serializers import CarSerializer
+from up_revendas.core.models import BankAccount
+from up_revendas.core.permissions import IsStoreManager
+from up_revendas.core.serializers import (
+    BankAccountSerializer,
+    PurchaseCreateSerializer,
+    PurchaseSerializer,
+    SaleSerializer,
+)
 
 
-class BankAccountAPIView()
+class BankAccountListCreateAPIView(ListCreateAPIView):
+    queryset = BankAccount.objects.all()
+    serializer_class = BankAccountSerializer
+    permission_classes = [IsAdminUser, IsStoreManager]
+
+
+class BankAccountRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = BankAccount.objects.all()
+    serializer_class = BankAccountSerializer
+    permission_classes = [IsAdminUser, IsStoreManager]
+
 
 class PurchaseAPIView(APIView):
 
@@ -50,6 +69,13 @@ class PurchaseAPIView(APIView):
 
         car = CarSerializer(data=data['car']).save()
         data['car'] = car.id
+        id_bank_account = data['bank_account']
+        bank_account = get_object_or_404(BankAccount, id=id_bank_account)
+        if bank_account.balance < data['value']:
+            raise ValidationError()
+        else:
+            bank_account.balance -= data['value']
+
         PurchaseSerializer(data).save()
 
 
@@ -60,6 +86,7 @@ class SaleAPIView(APIView):
     def post(self, request, format=None):
         serializer = SaleSerializer(data=request.data)
         if serializer.is_valid():
+            data = serializer.data
             serializer.save()
 
             return Response({'detail': 'Venda registrada com sucesso'}, status=status.HTTP_200_OK)
