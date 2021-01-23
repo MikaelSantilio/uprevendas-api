@@ -1,11 +1,12 @@
 from datetime import date
 
+from django.core.validators import MinValueValidator
 from django.db import models
+from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from up_revendas.cars.validators import validateCarLicensePlate
 from up_revendas.users.models import Base
-from django.forms import ValidationError
 
 
 class Brand(models.Model):
@@ -65,10 +66,10 @@ class Car(Base):
     year = models.CharField(max_length=4, choices=YEAR_CHOICES)
     version = models.CharField(max_length=255)
     transmission = models.CharField(max_length=14, choices=TRANSMISSION_CHOICES)
-    mileage = models.IntegerField()
+    mileage = models.IntegerField(validators=[MinValueValidator(0)])
     car_type = models.CharField(max_length=12, choices=CAR_TYPES_CHOICES)
     color = models.CharField(max_length=12, choices=COLOR_CHOICES)
-    sale_value = models.FloatField()
+    sale_value = models.FloatField(validators=[MinValueValidator(0)])
     sold = models.BooleanField(default=False)
 
     def clean(self):

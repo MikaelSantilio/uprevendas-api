@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -37,7 +38,7 @@ class Base(models.Model):
 class Function(models.Model):
     name = models.CharField(max_length=32)
     description = models.TextField()
-    salary = models.FloatField()
+    salary = models.FloatField(validators=[MinValueValidator(0)])
 
 
 class Profile(Base):
@@ -56,4 +57,4 @@ class Employee(Base):
 
 class Customer(Base):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    balance = models.FloatField(default=0)
+    balance = models.FloatField(validators=[MinValueValidator(0)])
