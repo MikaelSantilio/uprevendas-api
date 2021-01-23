@@ -26,9 +26,9 @@ class Model(models.Model):
 
 class Car(Base):
 
-    YEAR_CHOICES = (
+    YEAR_CHOICES = [
         (year, year) for year in range(1951, date.today().year + 1)
-    )
+    ]
 
     CAR_TYPES_CHOICES = (
         ("hatch", "Hatch"),

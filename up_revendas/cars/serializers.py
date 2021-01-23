@@ -3,6 +3,20 @@ from rest_framework import serializers
 from up_revendas.cars import models
 
 
+class BrandSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Brand
+        fields = ('id', 'name')
+
+
+class ModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Model
+        fields = ('id', 'brand', 'name')
+
+
 class CarSerializer(serializers.ModelSerializer):
 
     class Meta:

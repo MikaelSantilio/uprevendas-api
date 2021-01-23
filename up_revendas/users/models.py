@@ -13,7 +13,7 @@ class User(AbstractUser):
     #: First and last name do not cover name patterns around the globe
     name = models.CharField(_("Name of User"), blank=True, max_length=255)
     is_employee = models.BooleanField(default=False)
-    is_costumer = models.BooleanField(default=False)
+    is_customer = models.BooleanField(default=False)
     is_store_manager = models.BooleanField(default=False)
 
     def get_absolute_url(self):
@@ -49,12 +49,12 @@ class Profile(Base):
 
 
 class Employee(Base):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, related_name='employee', on_delete=models.CASCADE, primary_key=True)
     function = models.ForeignKey(Function, on_delete=models.CASCADE)
     entry_date = models.DateField(auto_now_add=True)
     departure_date = models.DateField(null=True, blank=True)
 
 
 class Customer(Base):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, related_name='customer', on_delete=models.CASCADE, primary_key=True)
     balance = models.FloatField(validators=[MinValueValidator(0)])

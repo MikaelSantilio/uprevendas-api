@@ -14,8 +14,11 @@ django-model-utils==4.1.1  # https://github.com/jazzband/django-model-utils
 django-allauth==0.44.0  # https://github.com/pennersr/django-allauth
 django-crispy-forms==1.10.0  # https://github.com/django-crispy-forms/django-crispy-forms
 django-redis==4.12.1  # https://github.com/jazzband/django-redis
+
 # Django REST Framework
 djangorestframework==3.12.2  # https://github.com/encode/django-rest-framework
 django-cors-headers==3.6.0 # https://github.com/adamchainz/django-cors-headers
 django-filter==2.4.0 # https://github.com/carltongibson/django-filter
-django-rest-swagger==2.2.0 # https://github.com/marcgibbons/django-rest-swagger
+drf-yasg==1.20.0 # https://github.com/axnsan12/drf-yasg
+djangorestframework-simplejwt==4.6.0 # https://github.com/SimpleJWT/django-rest-framework-simplejwt
+
