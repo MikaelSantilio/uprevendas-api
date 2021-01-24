@@ -6,13 +6,16 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db.models import Q
 
+from up_revendas.users.models import Customer
 from up_revendas.users.api.serializers import (
     CreateUserSerializer,
     CustomerSerializer,
     EmployeeSerializer,
     UserHyperlinkSerializer,
     UserSerializer,
+    UserIdSerializer
 )
 
 User = get_user_model()
@@ -117,3 +120,24 @@ class EmployeeDetailAPIView(APIView):
             serializer = EmployeeSerializer(request.user.employee, context={"request": request})
             return Response(status=status.HTTP_200_OK, data=serializer.data)
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class SellersListAPIView(APIView):
+
+    permission_classes = (AllowAny, )
+
+    def get(self, request, format=None):
+        users = User.objects.filter(
+            Q(is_employee=True) | Q(is_store_manage=True) | Q(is_superuser=True))
+        serializer = UserIdSerializer(users, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+
+class CustomersListAPIView(APIView):
+
+    permission_classes = (AllowAny, )
+
+    def get(self, request, format=None):
+        customers = Customer.objects.all()
+        serializer = CustomerSerializer(customers, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)

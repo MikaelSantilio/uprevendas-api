@@ -39,4 +39,4 @@ class CarHyperlinkSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Car
-        fields = ('brand', 'model', 'version', 'sale_value', 'detail')
+        fields = ('id', 'brand', 'model', 'version', 'sale_value', 'detail')

@@ -1,15 +1,16 @@
 from django.db import DatabaseError, transaction
+from django.forms import ValidationError
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from django.forms import ValidationError
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from up_revendas.cars.serializers import CarSerializer
 from up_revendas.cars.models import Car
-from up_revendas.core.models import BankAccount
+from up_revendas.cars.serializers import CarSerializer
+from up_revendas.core.models import BankAccount, Customer
 from up_revendas.core.permissions import IsStoreManager
 from up_revendas.core.serializers import (
     BankAccountSerializer,
@@ -50,18 +51,21 @@ class PurchaseAPIView(APIView):
 
         car = CarSerializer(data=data['car']).save()
         data['car'] = car.id
-        customer = Customer.objects.get(id=data['provider'])
-        id_bank_account = data['bank_account']
-        bank_account = get_object_or_404(BankAccount, id=id_bank_account)
+
+        customer = get_object_or_404(Customer, id=data['provider'])
+
+        bank_account = get_object_or_404(BankAccount, id=data['bank_account'])
+
         if bank_account.balance < data['value']:
-            raise ValidationError(message='Conta bancária com fundos insuficientes!')
+            raise HttpResponseBadRequest(message='Conta bancária com fundos insuficientes!')
 
-        else:
-            bank_account.balance -= data['value']
-            customer.balance += data['value']
+        bank_account.balance -= data['value']
+        customer.balance += data['value']
 
-        PurchaseSerializer(data).save()
+        serializer = PurchaseSerializer(data)
+        serializer.save()
         bank_account.save()
+        customer.save()
 
 
 class SaleAPIView(APIView):
@@ -72,30 +76,35 @@ class SaleAPIView(APIView):
         serializer = SaleSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            car = Car.objects.get(id=data['car'])
-            car.sold = True
-            serializer.save()
+            self.save_data(data)
 
             return Response({'detail': 'Venda registrada com sucesso'}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
     @transaction.atomic
     def save_data(self, data):
 
-        car = CarSerializer(data=data['car']).save()
-        data['car'] = car.id
-        customer = Customer.objects.get(id=data['customer'])
-        id_bank_account = data['bank_account']
-        bank_account = get_object_or_404(BankAccount, id=id_bank_account)
+        car = get_object_or_404(Car, id=data['car'])
+        customer = get_object_or_404(Customer, id=data['customer'])
+        bank_account = get_object_or_404(BankAccount, id=data['bank_account'])
+
         if customer.balance < data['value']:
-            raise ValidationError(message='Cliente com fundos insuficientes!')
+            raise HttpResponseBadRequest(message='Cliente com fundos insuficientes!')
 
-        else:
-            customer.balance -= data['value']
-            bank_account.balance += data['value']
+        elif data['value'] < car.min_sale_value:
+            raise HttpResponseBadRequest(
+                message=f'Carro não pode ser vendido abaixo do valor minimo de R$ {car.min_sale_value:.2f}!')
 
-        PurchaseSerializer(data).save()
+        elif car.sold is True:
+            raise HttpResponseBadRequest(message='Carro não disponível para venda!')
+
+        customer.balance -= data['value']
+        bank_account.balance += data['value']
+        car.sold = True
+
+        serializer = SaleSerializer(data=data)
+        serializer.save()
         bank_account.save()
         customer.save()
+        car.save()

@@ -46,7 +46,7 @@ class ModelRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class CarHyperlinkListCreateAPIView(ListCreateAPIView):
-    queryset = Car.objects.all()
+    queryset = Car.objects.filter(sold=False)
     serializer_class = CarHyperlinkSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]

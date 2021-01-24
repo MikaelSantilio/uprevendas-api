@@ -11,4 +11,6 @@ urlpatterns = [
     path("profile/", views.ProfileDetailAPIView.as_view(), name='profile'),
     path("employee-profile/", views.EmployeeDetailAPIView.as_view(), name='employee-profile'),
     path("customer-profile/", views.CustomerDetailAPIView.as_view(), name='customer-profile'),
+    path("sellers-list/", views.SellersListAPIView.as_view(), name='sellers-list'),
+    path("customers-list/", views.CustomersListAPIView.as_view(), name='customers-list'),
 ]

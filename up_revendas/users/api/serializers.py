@@ -9,6 +9,13 @@ from up_revendas.users.models import Customer, Employee, Profile
 User = get_user_model()
 
 
+class UserIdSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ["id", "username"]
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -61,7 +68,7 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customer
-        fields = ('user', 'balance')
+        fields = ('id', 'user', 'balance')
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -121,12 +128,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ["cpf", "birth_date", "phone_number"]
-
-
-class CustomerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Customer
-        fields = ["balance"]
 
 
 class EmployeeSerializer(serializers.ModelSerializer):

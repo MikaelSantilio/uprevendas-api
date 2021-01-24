@@ -69,7 +69,7 @@ class Car(Base):
     mileage = models.IntegerField(validators=[MinValueValidator(0)])
     car_type = models.CharField(max_length=12, choices=CAR_TYPES_CHOICES)
     color = models.CharField(max_length=12, choices=COLOR_CHOICES)
-    sale_value = models.FloatField(validators=[MinValueValidator(0)])
+    min_sale_value = models.FloatField(validators=[MinValueValidator(0)])
     sold = models.BooleanField(default=False)
 
     def clean(self):
