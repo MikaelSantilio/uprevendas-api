@@ -9,5 +9,11 @@ class IsStoreManager(BasePermission):
     def has_permission(self, request, view):
         # return bool(request.user and (request.user.is_staff or request.user.is_store_manager))
         return bool(
-            request.user and ((request.user.is_employee and request.method in SAFE_METHODS)
+            request.user.is_authenticated and ((request.user.is_employee and request.method in SAFE_METHODS)
                               or request.user.is_store_manager))
+
+
+class IsEmployee(BasePermission):
+
+    def has_permission(self, request, view):
+        return bool(request.user.is_authenticated and request.user.is_employee)

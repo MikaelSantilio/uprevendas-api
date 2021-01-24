@@ -1,5 +1,4 @@
-from django.db import DatabaseError, transaction
-from django.forms import ValidationError
+from django.db import transaction
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -11,7 +10,7 @@ from rest_framework.views import APIView
 from up_revendas.cars.models import Car
 from up_revendas.cars.serializers import CarSerializer
 from up_revendas.core.models import BankAccount, Customer
-from up_revendas.core.permissions import IsStoreManager
+from up_revendas.core.permissions import IsEmployee, IsStoreManager
 from up_revendas.core.serializers import (
     BankAccountSerializer,
     PurchaseCreateSerializer,
@@ -23,18 +22,18 @@ from up_revendas.core.serializers import (
 class BankAccountListCreateAPIView(ListCreateAPIView):
     queryset = BankAccount.objects.all()
     serializer_class = BankAccountSerializer
-    permission_classes = [IsAdminUser, IsStoreManager]
+    permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
 
 
 class BankAccountRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = BankAccount.objects.all()
     serializer_class = BankAccountSerializer
-    permission_classes = [IsAdminUser, IsStoreManager]
+    permission_classes = [IsAdminUser | IsStoreManager]
 
 
 class PurchaseAPIView(APIView):
 
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser | IsStoreManager]
 
     def post(self, request, format=None):
         serializer = PurchaseCreateSerializer(data=request.data)
@@ -70,7 +69,7 @@ class PurchaseAPIView(APIView):
 
 class SaleAPIView(APIView):
 
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
 
     def post(self, request, format=None):
         serializer = SaleSerializer(data=request.data)

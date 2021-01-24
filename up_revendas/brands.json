@@ -1,0 +1,80 @@
+[
+    {
+        "name": "Fiat"
+    },
+    {
+        "name": "GM - Chevrolet"
+    },
+    {
+        "name": "Volkswagen"
+    },
+    {
+        "name": "Renault"
+    },
+    {
+        "name": "Ford"
+    },
+    {
+        "name": "Hyundai"
+    },
+    {
+        "name": "Nissan"
+    },
+    {
+        "name": "Toyota"
+    },
+    {
+        "name": "Jeep"
+    }
+]
+// models
+[
+    {
+        "name": "Uno",
+        "brand": 1
+    },
+    {
+        "name": "Toro",
+        "brand": 1
+    },
+    {
+        "name": "Siena",
+        "brand": 1
+    },
+    {
+        "name": "Onix",
+        "brand": 2
+    },
+    {
+        "name": "S-10",
+        "brand": 2
+    },
+    {
+        "name": "Classic",
+        "brand": 2
+    },
+    {
+        "name": "Gol",
+        "brand": 3
+    },
+    {
+        "name": "Amarok",
+        "brand": 3
+    },
+    {
+        "name": "Golf",
+        "brand": 3
+    },
+    {
+        "name": "Ka",
+        "brand": 5
+    },
+    {
+        "name": "Ecosport",
+        "brand": 5
+    },
+    {
+        "name": "Fiesta",
+        "brand": 5
+    },
+]

@@ -4,9 +4,16 @@ from django.db import transaction
 from django.urls import reverse
 from rest_framework import serializers
 
-from up_revendas.users.models import Customer, Employee, Profile
+from up_revendas.users.models import Customer, Employee, Profile, Function
 
 User = get_user_model()
+
+
+class FunctionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Function
+        fields = ["id", "name", "description", "salary"]
 
 
 class UserIdSerializer(serializers.ModelSerializer):
@@ -16,22 +23,38 @@ class UserIdSerializer(serializers.ModelSerializer):
         fields = ["id", "username"]
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        ref_name = "User 1"
-        fields = ["username", "email", "name", "url"]
-
-        extra_kwargs = {
-            "url": {"view_name": "api:user-detail", "lookup_field": "username"}
-        }
-
-
 class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
         fields = ('cpf', 'birth_date', 'phone_number')
+
+
+class MyProfileSerializer(serializers.ModelSerializer):
+    profile_detail = ProfileSerializer(source='profile')
+    others = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "name", "profile_detail", "others"]
+
+    def get_others(self, obj):
+        data = {}
+
+        request = self.context['request']
+
+        if request.user.is_customer:
+            data['customer-profile'] = request.build_absolute_uri(
+                reverse("api:users:customer-profile"))
+
+        if request.user.is_employee:
+            data['employee-profile'] = request.build_absolute_uri(
+                reverse("api:users:employee-profile"))
+
+        if request.user.is_store_manager:
+            data['store-manager'] = True
+
+        return data
 
 
 class UserHyperlinkSerializer(serializers.ModelSerializer):
@@ -50,7 +73,7 @@ class UserHyperlinkSerializer(serializers.ModelSerializer):
         #     'activate-employee': reverse("api:users:activate-employee", kwargs={'pk': obj.id}),
         #     'activate-store-manager': reverse("api:users:activate-store-manager", kwargs={'pk': obj.id}),
         # }
-        if self.context['request'].is_employee:
+        if request.is_employee:
             data['activate-customer'] = reverse("api:users:activate-customer", kwargs={'pk': obj.id})
 
         if self.context['request'].is_store_manager:
@@ -65,10 +88,11 @@ class UserHyperlinkSerializer(serializers.ModelSerializer):
 class CustomerSerializer(serializers.ModelSerializer):
 
     balance = serializers.FloatField(required=True)
+    name = serializers.CharField(source='user.first_name')
 
     class Meta:
         model = Customer
-        fields = ('id', 'user', 'balance')
+        fields = ('user', 'name', 'balance')
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -101,6 +125,8 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    profile_detail = ProfileSerializer(source='profile')
+
     class Meta:
         model = User
         ref_name = "User 1"
@@ -112,16 +138,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "is_employee",
             "is_customer",
             "is_store_manager",
-            # "profile-url",
-            "customer_url",
-            "employee_url"
+            "profile_detail"
         ]
-
-        extra_kwargs = {
-            # "profile-url": {"view_name": "api:user-detail", "lookup_field": "username"},
-            "customer_url": {"view_name": "api:customer-profile", "lookup_field": "id"},
-            "employee_url": {"view_name": "api:employee-profile", "lookup_field": "id"},
-        }
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -133,4 +151,4 @@ class ProfileSerializer(serializers.ModelSerializer):
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
-        fields = ["function", "entry_date"]
+        fields = ["user", "function", "entry_date", "departure_date"]
