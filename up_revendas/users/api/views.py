@@ -1,56 +1,118 @@
+import pdb
+
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from up_revendas.users.api.serializers import (
+    CreateUserSerializer,
     CustomerSerializer,
     EmployeeSerializer,
+    UserHyperlinkSerializer,
     UserSerializer,
 )
 
 User = get_user_model()
 
 
-class UserViewSet(GenericViewSet):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-    lookup_field = "id"
+class CreateUserAPIView(APIView):
 
-    def get_queryset(self, *args, **kwargs):
-        return self.queryset.filter(id=self.request.user.id)
+    permission_classes = (AllowAny, )
 
-    def get_permissions(self):
-        if self.action == 'profile':
-            return [IsAdminUser(), ]        
-        return super(UserViewSet, self).get_permissions()
+    def post(self, request, format=None):
+        serializer = CreateUserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            data = UserHyperlinkSerializer(user).data
+            # pdb.set_trace()
 
-    def create_store_manager(self):
-        pass
+            return Response(status=status.HTTP_200_OK, data=data)
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
 
-    def create_customer(self):
-        pass
 
-    def create_employee(self):
-        pass
+class ActivateStoreManagerAPIView(APIView):
 
-    @action(detail=False, methods=["GET"])
-    def profile(self, request):
+    permission_classes = (AllowAny, )
+
+    def put(self, request, pk=None, format=None):
+        user = get_object_or_404(User, pk=pk)
+        user.is_store_manager = True
+        user.save()
+        return Response(status=status.HTTP_200_OK, data={'detail': 'Administrador da loja ativado com sucesso'})
+
+
+class ActivateCustomerAPIView(APIView):
+
+    permission_classes = (AllowAny, )
+
+    def put(self, request, pk=None, format=None):
+        user = get_object_or_404(User, pk=pk)
+
+        if user.is_customer and user.customer:
+            return Response(status=status.HTTP_204_NO_CONTENT, data={'detail': 'Cliente já ativado'})
+
+        user.is_customer = True
+
+        customer_data = request.data
+        customer_data['user'] = pk
+
+        serializer = CustomerSerializer(data=customer_data, context={"request": request})
+        if serializer.is_valid():
+            return Response(status=status.HTTP_200_OK, data={'detail': 'Cliente ativado com sucesso'})
+
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
+
+
+class ActivateEmployeeAPIView(APIView):
+
+    permission_classes = (AllowAny, )
+
+    def put(self, request, pk=None, format=None):
+        user = get_object_or_404(User, pk=pk)
+
+        if user.is_employee and user.employee:
+            return Response(status=status.HTTP_204_NO_CONTENT, data={'detail': 'Funcionário já ativado'})
+
+        user.is_employee = True
+
+        employee_data = request.data
+        employee_data['user'] = pk
+
+        serializer = EmployeeSerializer(data=employee_data, context={"request": request})
+        if serializer.is_valid():
+            return Response(status=status.HTTP_200_OK, data={'detail': 'Funcionário ativado com sucesso'})
+
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
+
+
+class ProfileDetailAPIView(APIView):
+
+    permission_classes = (AllowAny, )
+
+    def get(self, request, format=None):
         serializer = UserSerializer(request.user, context={"request": request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
-    @action(detail=False, methods=["GET"])
-    def customer_profile(self, request, url_path="customer-profile"):
+
+class CustomerDetailAPIView(APIView):
+
+    permission_classes = (AllowAny, )
+
+    def get(self, request, format=None):
         if request.user.is_customer and request.user.customer:
             serializer = CustomerSerializer(request.user.customer, context={"request": request})
             return Response(status=status.HTTP_200_OK, data=serializer.data)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    @action(detail=False, methods=["GET"], url_path="employee-profile")
-    def employee_profile(self, request):
+
+class EmployeeDetailAPIView(APIView):
+
+    permission_classes = (AllowAny, )
+
+    def get(self, request, format=None):
         if request.user.is_employee and request.user.employee:
             serializer = EmployeeSerializer(request.user.employee, context={"request": request})
             return Response(status=status.HTTP_200_OK, data=serializer.data)
