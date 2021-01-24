@@ -16,6 +16,7 @@ class Purchase(Base):
     buyer_for = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
     value = models.FloatField(validators=[MinValueValidator(0)])
+    bank_account = models.ForeignKey(BankAccount, null=True, blank=True, on_delete=models.SET_NULL)
 
 
 class Sale(Base):
@@ -23,3 +24,4 @@ class Sale(Base):
     seller = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
     value = models.FloatField(validators=[MinValueValidator(0)])
+    bank_account = models.ForeignKey(BankAccount, null=True, blank=True, on_delete=models.SET_NULL)

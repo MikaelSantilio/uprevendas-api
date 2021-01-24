@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from up_revendas.cars.serializers import CarSerializer
+from up_revendas.cars.models import Car
 from up_revendas.core.models import Customer, Purchase, Sale, BankAccount
 
 User = get_user_model()
@@ -24,11 +25,12 @@ class PurchaseCreateSerializer(serializers.Serializer):
 class PurchaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Purchase
-        fields = ('car', 'provider', 'buyer_for', 'value')
+        fields = ('car', 'provider', 'buyer_for', 'value', 'bank_account')
 
 
 class SaleSerializer(serializers.ModelSerializer):
 
+    car = serializers.PrimaryKeyRelatedField(queryset=Car.objects.filter(sold=False), required=True)
     customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all(), required=True)
     seller = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
     value = serializers.FloatField(required=True)
@@ -36,4 +38,4 @@ class SaleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sale
-        fields = ('car', 'customer', 'seller', 'value')
+        fields = ('car', 'customer', 'seller', 'value', 'bank_account')
