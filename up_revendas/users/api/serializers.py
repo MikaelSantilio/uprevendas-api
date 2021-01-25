@@ -4,7 +4,7 @@ from django.db import transaction
 from django.urls import reverse
 from rest_framework import serializers
 
-from up_revendas.users.models import Customer, Employee, Profile, Function
+from up_revendas.users.models import Customer, Employee, Function, Profile
 
 User = get_user_model()
 
@@ -58,29 +58,29 @@ class MyProfileSerializer(serializers.ModelSerializer):
 
 
 class UserHyperlinkSerializer(serializers.ModelSerializer):
-    # profile = ProfileSerializer()
+    profile = ProfileSerializer()
     options = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'options')
+        fields = ('username', 'email', 'profile', 'options')
 
     def get_options(self, obj):
         data = {}
 
-        # data = {
-        #     'activate-customer': reverse("api:users:activate-customer", kwargs={'pk': obj.id}),
-        #     'activate-employee': reverse("api:users:activate-employee", kwargs={'pk': obj.id}),
-        #     'activate-store-manager': reverse("api:users:activate-store-manager", kwargs={'pk': obj.id}),
-        # }
-        if request.is_employee:
-            data['activate-customer'] = reverse("api:users:activate-customer", kwargs={'pk': obj.id})
+        request = self.context['request']
 
-        if self.context['request'].is_store_manager:
-            data['activate-employee'] = reverse("api:users:activate-employee", kwargs={'pk': obj.id})
+        if request.user.is_employee or request.user.is_store_manager or request.user.is_superuser:
+            data['activate-customer'] = request.build_absolute_uri(
+                reverse("api:users:activate-customer", kwargs={'pk': obj.id}))
 
-        if self.context['request'].is_superuser:
-            data['activate-store-manager'] = reverse("api:users:activate-store-manager", kwargs={'pk': obj.id}),
+        if request.user.is_store_manager or request.user.is_superuser:
+            data['activate-employee'] = request.build_absolute_uri(
+                reverse("api:users:activate-employee", kwargs={'pk': obj.id}))
+
+        if request.user.is_superuser:
+            data['activate-store-manager'] = request.build_absolute_uri(
+                reverse("api:users:activate-store-manager", kwargs={'pk': obj.id}))
 
         return data
 

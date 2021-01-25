@@ -10,20 +10,10 @@ from up_revendas.users.validators import validate_CPF, validate_phone
 class User(AbstractUser):
     """Default user for UP Revendas."""
 
-    #: First and last name do not cover name patterns around the globe
     name = models.CharField(_("Name of User"), blank=True, max_length=255)
     is_employee = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=False)
     is_store_manager = models.BooleanField(default=False)
-
-    def get_absolute_url(self):
-        """Get url for user's detail view.
-
-        Returns:
-            str: URL for user detail.
-
-        """
-        return reverse("users:detail", kwargs={"username": self.username})
 
 
 class Base(models.Model):

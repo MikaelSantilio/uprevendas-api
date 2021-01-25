@@ -1,6 +1,7 @@
 import pdb
 
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -9,7 +10,7 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from up_revendas.core.permissions import IsStoreManager
+from up_revendas.core.permissions import IsStoreManager, IsEmployee
 from up_revendas.users.api.serializers import (
     CreateUserSerializer,
     CustomerSerializer,
@@ -22,7 +23,6 @@ from up_revendas.users.api.serializers import (
     UserProfileSerializer,
 )
 from up_revendas.users.models import Customer, Function
-from django.db import transaction
 
 User = get_user_model()
 
@@ -41,13 +41,13 @@ class FunctionRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 class CreateUserAPIView(APIView):
 
-    permission_classes = (AllowAny, )
+    permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
 
     def post(self, request, format=None):
         serializer = CreateUserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            data = UserHyperlinkSerializer(user).data
+            data = UserHyperlinkSerializer(user, context={'request': request}).data
             # pdb.set_trace()
 
             return Response(status=status.HTTP_200_OK, data=data)
