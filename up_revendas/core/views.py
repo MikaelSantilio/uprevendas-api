@@ -3,13 +3,13 @@ from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from up_revendas.cars.models import Car
 from up_revendas.cars.serializers import CarSerializer
-from up_revendas.core.models import BankAccount, Customer
+from up_revendas.core.models import BankAccount, Customer, Purchase
 from up_revendas.core.permissions import IsEmployee, IsStoreManager
 from up_revendas.core.serializers import (
     BankAccountHyperlinkSerializer,
@@ -18,6 +18,7 @@ from up_revendas.core.serializers import (
     PurchaseSerializer,
     SaleSerializer,
 )
+from rest_framework import viewsets
 
 
 class BankAccountListCreateAPIView(ListCreateAPIView):
@@ -41,6 +42,47 @@ class BankAccountRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = BankAccount.objects.all()
     serializer_class = BankAccountSerializer
     permission_classes = [IsAdminUser | IsStoreManager]
+
+
+class PurchaseViewSet(viewsets.ViewSet):
+    queryset = Purchase.objects.all()
+
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.action == 'list':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
+        return [permission() for permission in permission_classes]
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = PasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user.set_password(serializer.data['password'])
+            user.save()
+            return Response({'status': 'password set'})
+        else:
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+
+    def create(self, request):
+        pass
+
+    def retrieve(self, request, pk=None):
+        pass
+
+    def update(self, request, pk=None):
+        pass
+
+    def partial_update(self, request, pk=None):
+        pass
+
+    def destroy(self, request, pk=None):
+        pass
+
 
 
 class PurchaseAPIView(APIView):
