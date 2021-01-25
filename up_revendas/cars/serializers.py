@@ -21,7 +21,23 @@ class CarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Car
-        fields = '__all__'
+        fields = (
+            "id",
+            "license_plate",
+            "year",
+            "version",
+            "transmission",
+            "mileage",
+            "car_type",
+            "color",
+            "min_sale_value",
+            "brand",
+            "model")
+
+
+class CarDetailSerializer(CarSerializer):
+    brand = serializers.CharField(source='brand.name')
+    model = serializers.CharField(source='model.name')
 
 
 class CarHyperlinkSerializer(serializers.ModelSerializer):
@@ -35,8 +51,8 @@ class CarHyperlinkSerializer(serializers.ModelSerializer):
      )
     detail = serializers.HyperlinkedIdentityField(
         read_only=True,
-        view_name='api:car-detail', lookup_field='pk')
+        view_name='api:cars:car-detail', lookup_field='pk')
 
     class Meta:
         model = models.Car
-        fields = ('id', 'brand', 'model', 'version', 'sale_value', 'detail')
+        fields = ('id', 'brand', 'model', 'version', 'min_sale_value', 'detail')

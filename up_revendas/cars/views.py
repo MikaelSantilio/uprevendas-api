@@ -1,19 +1,19 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+from rest_framework import filters, status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import AllowAny
-from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
-
+from rest_framework.views import APIView
 
 from up_revendas.cars.models import Brand, Car, Model
 from up_revendas.cars.serializers import (
     BrandSerializer,
+    CarDetailSerializer,
     CarHyperlinkSerializer,
     CarSerializer,
-    ModelSerializer
+    ModelSerializer,
 )
+from up_revendas.core.permissions import IsEmployee, IsStoreManager
 
 
 class BrandListCreateAPIView(ListCreateAPIView):
@@ -23,11 +23,25 @@ class BrandListCreateAPIView(ListCreateAPIView):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     ordering_fields = ['name']
 
+    def check_create_permissions(self, request):
+
+        permission = [IsAdminUser | IsStoreManager | IsEmployee][0]()
+        if not permission.has_permission(request, self):
+            self.permission_denied(
+                request,
+                message=getattr(permission, 'message', None),
+                code=getattr(permission, 'code', None)
+            )
+
+    def post(self, request, *args, **kwargs):
+        self.check_create_permissions(request)
+        return self.create(request, *args, **kwargs)
+
 
 class BrandRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
 
 
 class ModelListCreateAPIView(ListCreateAPIView):
@@ -38,27 +52,57 @@ class ModelListCreateAPIView(ListCreateAPIView):
     filterset_fields = ['brand', 'name']
     ordering_fields = ['name']
 
+    def check_create_permissions(self, request):
+
+        permission = [IsAdminUser | IsStoreManager | IsEmployee][0]()
+        if not permission.has_permission(request, self):
+            self.permission_denied(
+                request,
+                message=getattr(permission, 'message', None),
+                code=getattr(permission, 'code', None)
+            )
+
+    def post(self, request, *args, **kwargs):
+        self.check_create_permissions(request)
+        return self.create(request, *args, **kwargs)
+
 
 class ModelRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Model.objects.all()
     serializer_class = ModelSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
 
 
 class CarHyperlinkListCreateAPIView(ListCreateAPIView):
     queryset = Car.objects.filter(sold=False)
-    serializer_class = CarHyperlinkSerializer
+    serializer_class = CarSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['brand', 'model', 'car_type', 'color', 'transmission']
     ordering_fields = ['sale_value', 'mileage', 'year', 'version']
     # ordering = ['sale_value']
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = CarHyperlinkSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+
+        serializer = CarHyperlinkSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+
 
 class CarRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser | IsStoreManager]
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = CarDetailSerializer(instance)
+        return Response(serializer.data)
 
 
 class CarChoicesAPIView(APIView):

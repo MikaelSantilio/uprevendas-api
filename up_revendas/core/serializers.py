@@ -12,7 +12,18 @@ User = get_user_model()
 class BankAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = BankAccount
-        fields = ('id', 'bank', 'agency', 'balance')
+        fields = ('id', 'bank', 'agency', 'account_type', 'name', 'cpf', 'balance')
+
+
+class BankAccountHyperlinkSerializer(serializers.ModelSerializer):
+
+    detail = serializers.HyperlinkedIdentityField(
+        read_only=True,
+        view_name='api:core:bank-account-detail', lookup_field='pk')
+
+    class Meta:
+        model = BankAccount
+        fields = ('id', 'bank', 'balance', 'detail')
 
 
 class PurchaseCreateSerializer(serializers.Serializer):

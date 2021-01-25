@@ -3,11 +3,15 @@ from django.db import models
 
 from up_revendas.cars.models import Car
 from up_revendas.users.models import Base, Customer, User
+from up_revendas.users.validators import validate_CPF
 
 
 class BankAccount(models.Model):
     bank = models.CharField(max_length=32)
     agency = models.CharField(max_length=16)
+    account_type = models.CharField(max_length=32)
+    name = models.CharField(max_length=32)
+    cpf = models.CharField("CPF", max_length=14, validators=[validate_CPF])
     balance = models.FloatField(validators=[MinValueValidator(0)])
 
 

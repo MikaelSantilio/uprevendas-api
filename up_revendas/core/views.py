@@ -16,6 +16,7 @@ from up_revendas.core.serializers import (
     PurchaseCreateSerializer,
     PurchaseSerializer,
     SaleSerializer,
+    BankAccountHyperlinkSerializer
 )
 
 
@@ -23,6 +24,17 @@ class BankAccountListCreateAPIView(ListCreateAPIView):
     queryset = BankAccount.objects.all()
     serializer_class = BankAccountSerializer
     permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = BankAccountHyperlinkSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+
+        serializer = BankAccountHyperlinkSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
 
 
 class BankAccountRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
