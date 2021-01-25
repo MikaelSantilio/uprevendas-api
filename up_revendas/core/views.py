@@ -46,7 +46,7 @@ class BankAccountRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 class PurchaseViewSet(viewsets.ViewSet):
     queryset = Purchase.objects.all()
-
+    # https://stackoverflow.com/questions/50934112/django-rest-framework-viewset-doesnt-filter-by-field
     def get_permissions(self):
         """
         Instantiates and returns the list of permissions that this view requires.
