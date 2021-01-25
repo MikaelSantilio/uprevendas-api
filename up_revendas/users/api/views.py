@@ -10,7 +10,7 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from up_revendas.core.permissions import IsStoreManager, IsEmployee
+from up_revendas.core.permissions import IsEmployee, IsStoreManager
 from up_revendas.users.api.serializers import (
     CreateUserSerializer,
     CustomerSerializer,
@@ -84,7 +84,7 @@ class ActivateCustomerAPIView(APIView):
             return Response(status=status.HTTP_200_OK, data={'detail': 'Cliente ativado com sucesso'})
 
         return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
-    
+
     @transaction.atomic
     def save_data(self, serializer, user):
         user.is_customer = True

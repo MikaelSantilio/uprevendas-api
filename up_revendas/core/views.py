@@ -12,11 +12,11 @@ from up_revendas.cars.serializers import CarSerializer
 from up_revendas.core.models import BankAccount, Customer
 from up_revendas.core.permissions import IsEmployee, IsStoreManager
 from up_revendas.core.serializers import (
+    BankAccountHyperlinkSerializer,
     BankAccountSerializer,
     PurchaseCreateSerializer,
     PurchaseSerializer,
     SaleSerializer,
-    BankAccountHyperlinkSerializer
 )
 
 
