@@ -3,6 +3,10 @@ marcas
 for m in marcas:
     Brand.objects.create(name=m['name'])
 
+for m in models:
+    b = Brand.objects.get(id=m['brand'])
+    Model.objects.create(brand=b, name=m['name'])
+
 
 for c in cars:
     b = Brand.objects.get(id=c['brand'])
@@ -18,7 +22,7 @@ for c in cars:
         mileage=c['mileage'],
         car_type=c['car_type'],
         color=c['color'],
-        sale_value=c['sale_value'] 
+        min_sale_value=c['sale_value'] 
     )
 
 marcas = [{'name': 'Fiat'},

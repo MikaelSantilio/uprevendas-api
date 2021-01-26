@@ -30,6 +30,21 @@ class Car(Base):
         (year, year) for year in range(1951, date.today().year + 1)
     ]
 
+    # YEAR_CHOICES = (
+    #     (2010, 2010),
+    #     (2011, 2011),
+    #     (2012, 2012),
+    #     (2013, 2013),
+    #     (2014, 2014),
+    #     (2015, 2015),
+    #     (2016, 2016),
+    #     (2017, 2017),
+    #     (2018, 2018),
+    #     (2019, 2019),
+    #     (2020, 2020),
+    #     (2021, 2021)
+    # )
+
     CAR_TYPES_CHOICES = (
         ("hatch", "Hatch"),
         ("sedan", "Sedã"),
@@ -63,7 +78,7 @@ class Car(Base):
     license_plate = models.CharField(max_length=8, validators=[validateCarLicensePlate])
     brand = models.ForeignKey(Brand, related_name="cars", on_delete=models.CASCADE)
     model = models.ForeignKey(Model, related_name="cars", on_delete=models.CASCADE)
-    year = models.CharField(max_length=4, choices=YEAR_CHOICES)
+    year = models.IntegerField(choices=YEAR_CHOICES)
     version = models.CharField(max_length=255)
     transmission = models.CharField(max_length=14, choices=TRANSMISSION_CHOICES)
     mileage = models.IntegerField(validators=[MinValueValidator(0)])
@@ -75,3 +90,6 @@ class Car(Base):
     def clean(self):
         if self.brand and self.model and self.brand != self.model.brand:
             raise ValidationError(message='O modelo não condiz com a marca', code='invalid')
+
+    def __str__(self):
+        return f"{self.brand.name} {self.model.name} {self.year} - {self.license_plate}"
