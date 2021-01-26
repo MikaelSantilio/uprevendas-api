@@ -10,15 +10,16 @@ from up_revendas.users.models import Base
 
 
 class Brand(models.Model):
-    name = models.CharField(max_length=32)
+    name = models.CharField("Nome", max_length=32)
 
     def __str__(self):
         return self.name
 
 
 class Model(models.Model):
-    name = models.CharField(max_length=32)
-    brand = models.ForeignKey(Brand,  related_name="models", on_delete=models.CASCADE)
+    name = models.CharField("Nome", max_length=32)
+    brand = models.ForeignKey(
+        Brand, verbose_name="Marca", related_name="models", on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.brand} {self.name}"
@@ -75,17 +76,17 @@ class Car(Base):
         ("SA", _("Semi Automatic"))
     )
 
-    license_plate = models.CharField(max_length=8, validators=[validateCarLicensePlate])
-    brand = models.ForeignKey(Brand, related_name="cars", on_delete=models.CASCADE)
-    model = models.ForeignKey(Model, related_name="cars", on_delete=models.CASCADE)
-    year = models.IntegerField(choices=YEAR_CHOICES)
-    version = models.CharField(max_length=255)
-    transmission = models.CharField(max_length=14, choices=TRANSMISSION_CHOICES)
-    mileage = models.IntegerField(validators=[MinValueValidator(0)])
-    car_type = models.CharField(max_length=12, choices=CAR_TYPES_CHOICES)
-    color = models.CharField(max_length=12, choices=COLOR_CHOICES)
-    min_sale_value = models.FloatField(validators=[MinValueValidator(0)])
-    sold = models.BooleanField(default=False)
+    license_plate = models.CharField("Placa", max_length=8, validators=[validateCarLicensePlate])
+    brand = models.ForeignKey(Brand, verbose_name="Marca", related_name="cars", on_delete=models.CASCADE)
+    model = models.ForeignKey(Model, verbose_name="Modelo", related_name="cars", on_delete=models.CASCADE)
+    year = models.IntegerField("Ano", choices=YEAR_CHOICES)
+    version = models.CharField("Versão", max_length=255)
+    transmission = models.CharField("Transmissão", max_length=14, choices=TRANSMISSION_CHOICES)
+    mileage = models.IntegerField("Quilometragem", validators=[MinValueValidator(0)])
+    car_type = models.CharField("Tipo do carro", max_length=12, choices=CAR_TYPES_CHOICES)
+    color = models.CharField("Cor", max_length=12, choices=COLOR_CHOICES)
+    min_sale_value = models.FloatField("Valor min. de venda", validators=[MinValueValidator(0)])
+    sold = models.BooleanField("Vendido", default=False)
 
     def clean(self):
         if self.brand and self.model and self.brand != self.model.brand:
