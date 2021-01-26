@@ -1,9 +1,13 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, status
+from rest_framework import filters, status, viewsets
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import mixins
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import action
+
 
 from up_revendas.cars.models import Brand, Car, Model
 from up_revendas.cars.serializers import (
@@ -119,3 +123,61 @@ class CarChoicesAPIView(APIView):
         }
 
         return Response(data, status=status.HTTP_200_OK)
+
+
+class CarViewSet(viewsets.ModelViewSet):
+    queryset = Car.objects.filter(sold=False)
+    serializer_class = CarSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['brand', 'model', 'car_type', 'color', 'transmission']
+    ordering_fields = ['sale_value', 'mileage', 'year', 'version']
+
+    def get_permissions(self):
+
+        if self.action == 'list':
+            permission_classes = [AllowAny]
+        elif self.action == 'choices':
+            permission_classes = [AllowAny]
+        elif self.action == 'retrieve':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAdminUser | IsStoreManager]
+        return [permission() for permission in permission_classes]
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = CarHyperlinkSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
+    def choices(self, request, format=None):
+        data = {
+            'transmissions': Car.TRANSMISSION_CHOICES,
+            'car_types': Car.CAR_TYPES_CHOICES,
+            'colors': Car.COLOR_CHOICES,
+            'years': Car.YEAR_CHOICES
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+
+    # def create(self, request):
+    #     serializer = CarSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
+    #     else:
+    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # def retrieve(self, request, pk=None):
+    #     obj = get_object_or_404(Car, pk=pk)
+    #     serializer = CarSerializer(obj)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # def update(self, request, pk=None):
+    #     pass
+
+    # def partial_update(self, request, pk=None):
+    #     pass
+
+    # def destroy(self, request, pk=None):
+    #     pass
