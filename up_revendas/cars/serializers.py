@@ -68,7 +68,7 @@ class CarHyperlinkSerializer(serializers.ModelSerializer):
                 "type": "GET",
                 "rel": "self",
                 "uri": request.build_absolute_uri(
-                    reverse("api:cars:car-detail", kwargs={'pk': obj.id}))
+                    reverse("api:cars:cars-detail", kwargs={'pk': obj.id}))
             }
         )
 
@@ -79,17 +79,17 @@ class CarHyperlinkSerializer(serializers.ModelSerializer):
                     {
                         "type": "POST",
                         "rel": "create",
-                        "uri": request.build_absolute_uri(reverse("api:cars:car-detail"))
+                        "uri": request.build_absolute_uri(reverse("api:cars:cars-list"))
                     },
                     {
                         "type": "PUT",
                         "rel": "update",
-                        "uri": request.build_absolute_uri(reverse("api:cars:car-detail"))
+                        "uri": request.build_absolute_uri(reverse("api:cars:cars-detail", kwargs={'pk': obj.id}))
                     },
                     {
                         "type": "DELETE",
                         "rel": "update",
-                        "uri": request.build_absolute_uri(reverse("api:cars:car-detail"))
+                        "uri": request.build_absolute_uri(reverse("api:cars:cars-detail", , kwargs={'pk': obj.id}))
                     }
                 ]
 

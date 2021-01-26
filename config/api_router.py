@@ -26,7 +26,7 @@ app_name = "api"
 router = DefaultRouter()
 router.register("comprar", PurchaseViewSet, basename="comprar")
 router.register("vender", SaleViewSet, basename="vender")
-router.register("car", CarViewSet, basename="car")
+# router.register("carros", CarViewSet, basename="carros")
 
 
 urlpatterns = [
