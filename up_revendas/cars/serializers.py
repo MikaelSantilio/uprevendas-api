@@ -1,5 +1,6 @@
-from rest_framework import serializers
 from django.urls import reverse
+from rest_framework import serializers
+
 from up_revendas.cars import models
 
 
@@ -77,19 +78,14 @@ class CarHyperlinkSerializer(serializers.ModelSerializer):
             if request.user.is_store_manager or request.user.is_superuser:
                 data += [
                     {
-                        "type": "POST",
-                        "rel": "create",
-                        "uri": request.build_absolute_uri(reverse("api:cars:cars-list"))
-                    },
-                    {
                         "type": "PUT",
-                        "rel": "update",
+                        "rel": "carro_atualizacao",
                         "uri": request.build_absolute_uri(reverse("api:cars:cars-detail", kwargs={'pk': obj.id}))
                     },
                     {
                         "type": "DELETE",
-                        "rel": "update",
-                        "uri": request.build_absolute_uri(reverse("api:cars:cars-detail", , kwargs={'pk': obj.id}))
+                        "rel": "carro_exclusao",
+                        "uri": request.build_absolute_uri(reverse("api:cars:cars-detail", kwargs={'pk': obj.id}))
                     }
                 ]
 

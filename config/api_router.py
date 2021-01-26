@@ -22,10 +22,6 @@ schema_view = get_schema_view(
 
 app_name = "api"
 
-
-router = DefaultRouter()
-router.register("comprar", PurchaseViewSet, basename="comprar")
-router.register("vender", SaleViewSet, basename="vender")
 # router.register("carros", CarViewSet, basename="carros")
 
 
@@ -42,4 +38,4 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 
-urlpatterns += router.urls
+# urlpatterns += router.urls

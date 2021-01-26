@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.urls import reverse
 from rest_framework import serializers
 
 from up_revendas.cars.models import Car
@@ -17,13 +18,48 @@ class BankAccountSerializer(serializers.ModelSerializer):
 
 class BankAccountHyperlinkSerializer(serializers.ModelSerializer):
 
-    detail = serializers.HyperlinkedIdentityField(
-        read_only=True,
-        view_name='api:core:bank-account-detail', lookup_field='pk')
+    links = serializers.SerializerMethodField()
+    # detail = serializers.HyperlinkedIdentityField(
+    #     read_only=True,
+    #     view_name='api:core:bank-account-detail', lookup_field='pk')
 
     class Meta:
         model = BankAccount
         fields = ('id', 'bank', 'balance', 'detail')
+
+    def get_links(self, obj):
+        data = []
+
+        request = self.context['request']
+
+        if request.user.is_authenticated:
+
+            if request.user.is_store_manager or request.user.is_superuser or request.user.is_employee:
+
+                data.append(
+                    {
+                        "type": "GET",
+                        "rel": "self",
+                        "uri": request.build_absolute_uri(
+                            reverse("api:core:bank-account-detail", kwargs={'pk': obj.id}))
+                    }
+                )
+
+            if request.user.is_store_manager or request.user.is_superuser:
+                data += [
+                    {
+                        "type": "PUT",
+                        "rel": "conta_atualizacao",
+                        "uri": request.build_absolute_uri(reverse("api:core:bank-account-detail", kwargs={'pk': obj.id}))
+                    },
+                    {
+                        "type": "DELETE",
+                        "rel": "conta_exclusao",
+                        "uri": request.build_absolute_uri(reverse("api:core:bank-account-detail", kwargs={'pk': obj.id}))
+                    }
+                ]
+
+        return data
 
 
 class PurchaseCreateSerializer(serializers.Serializer):
@@ -43,14 +79,33 @@ class PurchaseSerializer(serializers.ModelSerializer):
 
 class PurchaseHyperLinkSerializer(serializers.ModelSerializer):
 
-    # license_plate = serializers.CharField(source='car.license_plate')
-    detail = serializers.HyperlinkedIdentityField(
-        read_only=True,
-        view_name='api:comprar-detail', lookup_field='pk')
+    links = serializers.SerializerMethodField()
+    # detail = serializers.HyperlinkedIdentityField(
+    #     read_only=True,
+    #     view_name='api:comprar-detail', lookup_field='pk')
 
     class Meta:
         model = Purchase
         fields = ('created_at', 'value', 'detail')
+
+    def get_links(self, obj):
+        data = []
+
+        request = self.context['request']
+
+        if request.user.is_authenticated and (
+                request.user.is_store_manager or request.user.is_superuser or request.user.is_employee):
+
+            data.append(
+                {
+                    "type": "GET",
+                    "rel": "self",
+                    "uri": request.build_absolute_uri(
+                        reverse("api:core:purchase-detail", kwargs={'pk': obj.id}))
+                }
+            )
+
+        return data
 
 
 class SaleSerializer(serializers.ModelSerializer):
@@ -69,11 +124,30 @@ class SaleSerializer(serializers.ModelSerializer):
 
 class SaleHyperLinkSerializer(serializers.ModelSerializer):
 
-    # license_plate = serializers.CharField(source='car.license_plate')
-    detail = serializers.HyperlinkedIdentityField(
-        read_only=True,
-        view_name='api:vender-detail', lookup_field='pk')
+    links = serializers.SerializerMethodField()
+    # detail = serializers.HyperlinkedIdentityField(
+    #     read_only=True,
+    #     view_name='api:vender-detail', lookup_field='pk')
 
     class Meta:
         model = Sale
         fields = ('created_at', 'value', 'detail')
+
+    def get_links(self, obj):
+        data = []
+
+        request = self.context['request']
+
+        if request.user.is_authenticated and (
+                request.user.is_store_manager or request.user.is_superuser or request.user.is_employee):
+
+            data.append(
+                {
+                    "type": "GET",
+                    "rel": "self",
+                    "uri": request.build_absolute_uri(
+                        reverse("api:core:sale-detail", kwargs={'pk': obj.id}))
+                }
+            )
+
+        return data
