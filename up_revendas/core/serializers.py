@@ -41,6 +41,18 @@ class PurchaseSerializer(serializers.ModelSerializer):
         fields = ('car', 'provider', 'buyer_for', 'value', 'bank_account')
 
 
+class PurchaseHyperLinkSerializer(serializers.ModelSerializer):
+
+    # license_plate = serializers.CharField(source='car.license_plate')
+    detail = serializers.HyperlinkedIdentityField(
+        read_only=True,
+        view_name='api:comprar-detail', lookup_field='pk')
+
+    class Meta:
+        model = Purchase
+        fields = ('created_at', 'value', 'detail')
+
+
 class SaleSerializer(serializers.ModelSerializer):
 
     car = serializers.PrimaryKeyRelatedField(queryset=Car.objects.filter(sold=False), required=True)
@@ -53,3 +65,15 @@ class SaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
         fields = ('car', 'customer', 'seller', 'value', 'bank_account')
+
+
+class SaleHyperLinkSerializer(serializers.ModelSerializer):
+
+    # license_plate = serializers.CharField(source='car.license_plate')
+    detail = serializers.HyperlinkedIdentityField(
+        read_only=True,
+        view_name='api:vender-detail', lookup_field='pk')
+
+    class Meta:
+        model = Sale
+        fields = ('created_at', 'value', 'detail')
