@@ -28,6 +28,9 @@ class Function(models.Model):
     description = models.TextField("Descrição")
     salary = models.FloatField("Salário", validators=[MinValueValidator(0)])
 
+    def __str__(self):
+        return f"{self.name} - R$ {self.salary:.2f}"
+
 
 class Profile(Base):
     user = models.OneToOneField(
@@ -35,6 +38,9 @@ class Profile(Base):
     cpf = models.CharField("CPF", unique=True, max_length=14, validators=[validate_CPF])
     birth_date = models.DateField("Data. nasc.")
     phone_number = models.CharField("Telefone", validators=[validate_phone], max_length=17, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.cpf}"
 
 
 class Employee(Base):
@@ -44,8 +50,14 @@ class Employee(Base):
     entry_date = models.DateField("Data de entrada", auto_now_add=True)
     departure_date = models.DateField("Data de saída", null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.user.username} - {self.function.name}"
+
 
 class Customer(Base):
     user = models.OneToOneField(
         User, verbose_name="Usuário", related_name='customer', on_delete=models.CASCADE, primary_key=True)
     balance = models.FloatField("Saldo", validators=[MinValueValidator(0)])
+
+    def __str__(self):
+        return f"{self.user.username} - R$ {self.balance:.2f}"

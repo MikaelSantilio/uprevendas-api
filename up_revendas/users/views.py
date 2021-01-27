@@ -1,28 +1,25 @@
-import pdb
-
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from up_revendas.core.permissions import IsEmployee, IsStoreManager
+from up_revendas.users.models import Customer, Function
 from up_revendas.users.serializers import (
     CreateUserSerializer,
     CustomerSerializer,
     EmployeeSerializer,
     FunctionSerializer,
     MyProfileSerializer,
-    ProfileSerializer,
+    ProfileDetailSerializer,
     UserHyperlinkSerializer,
-    UserIdSerializer,
-    UserProfileSerializer,
+    UserListSerializer,
 )
-from up_revendas.users.models import Customer, Function
 
 User = get_user_model()
 
@@ -137,30 +134,8 @@ class ProfileDetailAPIView(APIView):
 
     def get(self, request, pk, format=None):
         user = get_object_or_404(User, pk=pk)
-        serializer = UserProfileSerializer(user, context={"request": request})
+        serializer = ProfileDetailSerializer(user, context={"request": request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
-
-
-class CustomerDetailAPIView(APIView):
-
-    permission_classes = (IsAuthenticated, )
-
-    def get(self, request, format=None):
-        if request.user.is_customer and request.user.customer:
-            serializer = CustomerSerializer(request.user.customer, context={"request": request})
-            return Response(status=status.HTTP_200_OK, data=serializer.data)
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-
-class EmployeeDetailAPIView(APIView):
-
-    permission_classes = (IsAuthenticated, )
-
-    def get(self, request, format=None):
-        if request.user.is_employee and request.user.employee:
-            serializer = EmployeeSerializer(request.user.employee, context={"request": request})
-            return Response(status=status.HTTP_200_OK, data=serializer.data)
-        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class SellersListAPIView(APIView):
@@ -180,4 +155,14 @@ class CustomersListAPIView(APIView):
     def get(self, request, format=None):
         customers = Customer.objects.all()
         serializer = CustomerSerializer(customers, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+
+class UserListAPIView(APIView):
+
+    permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
+
+    def get(self, request, format=None):
+        users = User.objects.all()
+        serializer = UserListSerializer(users, many=True, context={"request": request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)

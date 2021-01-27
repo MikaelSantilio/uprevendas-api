@@ -14,9 +14,8 @@ urlpatterns = [
 
     path("lista-vendedores/", views.SellersListAPIView.as_view(), name='sellers-list'),
     path("lista-clientes/", views.CustomersListAPIView.as_view(), name='customers-list'),
+    path("lista-usuarios/", views.UserListAPIView.as_view(), name='users-list'),
 
     path("meu-perfil/", views.MyProfileAPIView.as_view(), name='my-profile'),
     path("perfil/<int:pk>/", views.ProfileDetailAPIView.as_view(), name='profile-detail'),
-    path("perfil-empregado/", views.EmployeeDetailAPIView.as_view(), name='employee-profile'),
-    path("perfil-cliente/", views.CustomerDetailAPIView.as_view(), name='customer-profile'),
 ]

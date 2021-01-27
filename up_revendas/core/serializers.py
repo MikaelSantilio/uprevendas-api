@@ -36,14 +36,26 @@ class BankAccountHyperlinkSerializer(serializers.ModelSerializer):
 
             if request.user.is_store_manager or request.user.is_superuser or request.user.is_employee:
 
-                data.append(
+                data += [
                     {
                         "type": "GET",
                         "rel": "self",
                         "uri": request.build_absolute_uri(
                             reverse("api:core:bank-account-detail", kwargs={'pk': obj.id}))
+                    },
+                    {
+                        "type": "GET",
+                        "rel": "conta_compras",
+                        "uri": request.build_absolute_uri(
+                            f'{reverse("api:core:purchase-list")}?bank_account={obj.id}')
+                    },
+                    {
+                        "type": "GET",
+                        "rel": "conta_vendas",
+                        "uri": request.build_absolute_uri(
+                            f'{reverse("api:core:sale-list")}?bank_account={obj.id}')
                     }
-                )
+                ]
 
             if request.user.is_store_manager or request.user.is_superuser:
                 data += [
@@ -141,13 +153,19 @@ class SaleHyperLinkSerializer(serializers.ModelSerializer):
         if request.user.is_authenticated and (
                 request.user.is_store_manager or request.user.is_superuser or request.user.is_employee):
 
-            data.append(
+            data += [
                 {
                     "type": "GET",
                     "rel": "self",
                     "uri": request.build_absolute_uri(
                         reverse("api:core:sale-detail", kwargs={'pk': obj.id}))
-                }
-            )
+                },
+                {
+                    "type": "GET",
+                    "rel": "self",
+                    "uri": request.build_absolute_uri(
+                        reverse("api:core:sale-detail", kwargs={'pk': obj.id}))
+                },
+            ]
 
         return data

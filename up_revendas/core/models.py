@@ -14,6 +14,9 @@ class BankAccount(models.Model):
     cpf = models.CharField("CPF", max_length=14, validators=[validate_CPF])
     balance = models.FloatField("Saldo", validators=[MinValueValidator(0)])
 
+    def __str__(self):
+        return f"{self.bank} - {self.balance}"
+
 
 class Purchase(Base):
     provider = models.ForeignKey(
@@ -26,6 +29,9 @@ class Purchase(Base):
         BankAccount,
         verbose_name="Conta bancária", related_name="purchases", null=True, blank=True, on_delete=models.SET_NULL)
 
+    def __str__(self):
+        return f"{self.value} - {self.created_at}"
+
 
 class Sale(Base):
     customer = models.ForeignKey(
@@ -37,3 +43,6 @@ class Sale(Base):
     bank_account = models.ForeignKey(
         BankAccount,
         verbose_name="Conta bancária", related_name="sales", null=True, blank=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return f"{self.value} - {self.created_at}"

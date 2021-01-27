@@ -46,6 +46,29 @@ class BankAccountRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser | IsStoreManager]
 
 
+class BankAccountViewSet(viewsets.ModelViewSet):
+    queryset = BankAccount.objects.all()
+    serializer_class = BankAccountSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['bank']
+    ordering_fields = ['balance']
+
+    def get_permissions(self):
+
+        if self.action == 'list':
+            permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
+        elif self.action == 'retrieve':
+            permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
+        else:
+            permission_classes = [IsAdminUser | IsStoreManager]
+        return [permission() for permission in permission_classes]
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = BankAccountHyperlinkSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class PurchaseViewSet(viewsets.ViewSet):
     queryset = Purchase.objects.all()
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]

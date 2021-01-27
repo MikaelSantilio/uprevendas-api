@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from up_revendas.users.models import Customer, Employee, Function, Profile
@@ -16,11 +17,63 @@ class FunctionSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "description", "salary"]
 
 
-class UserIdSerializer(serializers.ModelSerializer):
+class UserListSerializer(serializers.ModelSerializer):
+    links = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ["id", "username"]
+        fields = [
+            "id",
+            "username",
+            "email",
+            "is_employee",
+            "is_customer",
+            "is_store_manager",
+            "links"
+        ]
+
+    def get_links(self, obj):
+        data = []
+        request = self.context['request']
+
+        if obj.is_store_manager:
+
+            data += [
+                {
+                    "type": "GET",
+                    "rel": "usuario_compras",
+                    "uri": request.build_absolute_uri(
+                        f'{reverse("api:core:purchase-list")}?buyer_for={obj.id}')
+                }
+            ]
+
+        if obj.is_store_manager or obj.is_employee:
+            data += [
+                {
+                    "type": "GET",
+                    "rel": "usuario_vendas",
+                    "uri": request.build_absolute_uri(
+                        f'{reverse("api:core:sale-list")}?seller={obj.id}')
+                }
+            ]
+
+        if obj.is_customer:
+            data += [
+                {
+                    "type": "GET",
+                    "rel": "cliente_compras",
+                    "uri": request.build_absolute_uri(
+                        f'{reverse("api:core:purchase-list")}?provider={obj.id}')
+                },
+                {
+                    "type": "GET",
+                    "rel": "cliente_vendas",
+                    "uri": request.build_absolute_uri(
+                        f'{reverse("api:core:sale-list")}?customer={obj.id}')
+                }
+            ]
+
+        return data
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -44,12 +97,21 @@ class MyProfileSerializer(serializers.ModelSerializer):
         request = self.context['request']
 
         if request.user.is_customer:
-            data['customer-profile'] = request.build_absolute_uri(
-                reverse("api:users:customer-profile"))
+
+            customer_obj = get_object_or_404(Customer, user=obj)
+
+            data["customer"] = {
+                "balance": customer_obj.balance
+            }
 
         if request.user.is_employee:
-            data['employee-profile'] = request.build_absolute_uri(
-                reverse("api:users:employee-profile"))
+            employee_obj = get_object_or_404(Employee, user=obj)
+
+            data["employee"] = {
+                "function": employee_obj.function.name,
+                "salary": employee_obj.salary,
+                "entry_date": employee_obj.entry_date
+            }
 
         if request.user.is_store_manager:
             data['store-manager'] = True
@@ -124,28 +186,40 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class ProfileDetailSerializer(serializers.ModelSerializer):
     profile_detail = ProfileSerializer(source='profile')
+    others = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        ref_name = "User 1"
-        fields = [
-            "id",
-            "username",
-            "email",
-            "name",
-            "is_employee",
-            "is_customer",
-            "is_store_manager",
-            "profile_detail"
-        ]
+        fields = ["username", "email", "name", "profile_detail", "others"]
 
+    def get_others(self, obj):
+        data = {}
 
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ["cpf", "birth_date", "phone_number"]
+        request = self.context['request']
+
+        if request.user.is_customer:
+
+            customer_obj = get_object_or_404(Customer, user=obj)
+
+            data["customer"] = {
+                "balance": customer_obj.balance
+            }
+
+        if request.user.is_employee:
+            employee_obj = get_object_or_404(Employee, user=obj)
+
+            data["employee"] = {
+                "function": employee_obj.function.name,
+                "salary": employee_obj.salary,
+                "entry_date": employee_obj.entry_date
+            }
+
+        if request.user.is_store_manager:
+            data['store-manager'] = True
+
+        return data
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
