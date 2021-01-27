@@ -11,14 +11,4 @@ router.register("comprar", views.PurchaseViewSet, basename="purchase")
 router.register("vender", views.SaleViewSet, basename="sale")
 router.register("contas-bancarias", views.SaleViewSet, basename="bank-account")
 
-urlpatterns = [
-    # path("comprar/", views.PurchaseAPIView.as_view(), name="purchase"),
-    # path("vender/", views.SaleAPIView.as_view(), name="sale"),
-    # path("contas-bancarias/", views.BankAccountListCreateAPIView.as_view(), name="bank-account-list"),
-    # path(
-    #     "contas-bancarias/<int:pk>/",
-    #     views.BankAccountRetrieveUpdateDestroyAPIView.as_view(),
-    #     name="bank-account-detail"),
-]
-
-urlpatterns += router.urls
+urlpatterns = router.urls

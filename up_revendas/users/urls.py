@@ -8,7 +8,7 @@ urlpatterns = [
     path("funcoes/<int:pk>/", views.FunctionRetrieveUpdateDestroyAPIView.as_view(), name='function-detail'),
 
     path("criar-perfil/", views.CreateUserAPIView.as_view(), name='create-user'),
-    path("activate-gerente-loja/<int:pk>/", views.ActivateStoreManagerAPIView.as_view(), name='activate-store-manager'),
+    path("ativar-gerente-loja/<int:pk>/", views.ActivateStoreManagerAPIView.as_view(), name='activate-store-manager'),
     path("ativar-cliente/<int:pk>/", views.ActivateCustomerAPIView.as_view(), name='activate-customer'),
     path("ativar-funcionario/<int:pk>/", views.ActivateEmployeeAPIView.as_view(), name='activate-employee'),
 
