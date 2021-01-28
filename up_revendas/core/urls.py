@@ -9,6 +9,6 @@ router = DefaultRouter()
 
 router.register("comprar", views.PurchaseViewSet, basename="purchase")
 router.register("vender", views.SaleViewSet, basename="sale")
-router.register("contas-bancarias", views.SaleViewSet, basename="bank-account")
+router.register("contas-bancarias", views.BankAccountViewSet, basename="bank-account")
 
 urlpatterns = router.urls

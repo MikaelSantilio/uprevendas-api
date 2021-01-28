@@ -77,38 +77,6 @@ class ModelRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
 
 
-class CarHyperlinkListCreateAPIView(ListCreateAPIView):
-    queryset = Car.objects.filter(sold=False)
-    serializer_class = CarSerializer
-    permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['brand', 'model', 'car_type', 'color', 'transmission']
-    ordering_fields = ['sale_value', 'mileage', 'year', 'version']
-    # ordering = ['sale_value']
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = CarHyperlinkSerializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(serializer.data)
-
-        serializer = CarHyperlinkSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
-
-
-class CarRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = Car.objects.all()
-    serializer_class = CarSerializer
-    permission_classes = [IsAdminUser | IsStoreManager]
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = CarDetailSerializer(instance)
-        return Response(serializer.data)
-
-
 class CarChoicesAPIView(APIView):
 
     permission_classes = [AllowAny]
@@ -130,7 +98,7 @@ class CarViewSet(viewsets.ModelViewSet):
     serializer_class = CarSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['brand', 'model', 'car_type', 'color', 'transmission']
-    ordering_fields = ['sale_value', 'mileage', 'year', 'version']
+    ordering_fields = ['min_sale_value', 'mileage', 'year', 'version']
 
     def get_permissions(self):
 
@@ -159,25 +127,3 @@ class CarViewSet(viewsets.ModelViewSet):
         }
 
         return Response(data, status=status.HTTP_200_OK)
-
-    # def create(self, request):
-    #     serializer = CarSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     else:
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # def retrieve(self, request, pk=None):
-    #     obj = get_object_or_404(Car, pk=pk)
-    #     serializer = CarSerializer(obj)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # def update(self, request, pk=None):
-    #     pass
-
-    # def partial_update(self, request, pk=None):
-    #     pass
-
-    # def destroy(self, request, pk=None):
-    #     pass
