@@ -150,11 +150,10 @@ class UserHATEOASerializer(serializers.ModelSerializer):
 class CustomerSerializer(serializers.ModelSerializer):
 
     balance = serializers.FloatField(required=True)
-    name = serializers.CharField(source='user.first_name')
 
     class Meta:
         model = Customer
-        fields = ('user', 'name', 'balance')
+        fields = ('user', 'balance')
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
