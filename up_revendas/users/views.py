@@ -3,14 +3,18 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (
+    GenericAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import GenericAPIView
 
 from up_revendas.core.permissions import IsEmployee, IsStoreManager
 from up_revendas.core.views import ListPaginatedMixin
+from up_revendas.users.filters import UserFilter
 from up_revendas.users.models import Function
 from up_revendas.users.serializers import (
     CreateUserSerializer,
@@ -146,7 +150,8 @@ class UserListAPIView(ListPaginatedMixin, GenericAPIView):
     serializer_class = UserListSerializer
     permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['is_employee', 'is_customer', 'is_store_manager']
+    filterset_class = UserFilter
+    # filterset_fields = ['is_employee', 'is_customer', 'is_store_manager']
     ordering_fields = ['username']
 
     def get(self, request, format=None):
