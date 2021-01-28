@@ -15,6 +15,7 @@ from up_revendas.cars.serializers import (
     ModelSerializer,
 )
 from up_revendas.core.permissions import IsEmployee, IsStoreManager
+from up_revendas.core.views import ListPaginatedMixin
 
 
 class BrandListCreateAPIView(ListCreateAPIView):
@@ -74,7 +75,7 @@ class ModelRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
 
 
-class CarViewSet(viewsets.ModelViewSet):
+class CarViewSet(ListPaginatedMixin, viewsets.ModelViewSet):
     queryset = Car.objects.filter(sold=False)
     serializer_class = CarSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
@@ -94,9 +95,7 @@ class CarViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        queryset = self.get_queryset()
-        serializer = CarHyperlinkSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return self.custom_paginated_queryset(request, CarHyperlinkSerializer)
 
     @action(detail=False, methods=["get"])
     def choices(self, request, format=None):

@@ -7,8 +7,10 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 
 from up_revendas.core.permissions import IsEmployee, IsStoreManager
+from up_revendas.core.views import ListPaginatedMixin
 from up_revendas.users.models import Function
 from up_revendas.users.serializers import (
     CreateUserSerializer,
@@ -138,14 +140,17 @@ class ProfileDetailAPIView(APIView):
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
 
-class UserListAPIView(APIView):
+class UserListAPIView(ListPaginatedMixin, GenericAPIView):
 
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
     permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['is_employee', 'is_customer', 'is_store_manager']
     ordering_fields = ['username']
 
     def get(self, request, format=None):
-        users = User.objects.all()
-        serializer = UserListSerializer(users, many=True, context={"request": request})
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+        return self.custom_paginated_queryset(request, UserListSerializer)
+
+        # serializer = UserListSerializer(users, many=True, context={"request": request})
+        # return Response(status=status.HTTP_200_OK, data=serializer.data)

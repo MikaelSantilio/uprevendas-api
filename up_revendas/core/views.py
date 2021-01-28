@@ -21,7 +21,20 @@ from up_revendas.core.serializers import (
 )
 
 
-class BankAccountViewSet(viewsets.ModelViewSet):
+class ListPaginatedMixin():
+
+    def custom_paginated_queryset(self, request, Serializer):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = Serializer(page, many=True, context={"request": request})
+            return self.get_paginated_response(serializer.data)
+
+        serializer = Serializer(queryset, many=True, context={"request": request})
+        return Response(serializer.data)
+
+
+class BankAccountViewSet(ListPaginatedMixin, viewsets.ModelViewSet):
     queryset = BankAccount.objects.all()
     serializer_class = BankAccountSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
@@ -39,12 +52,10 @@ class BankAccountViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        queryset = self.get_queryset()
-        serializer = BankAccountHyperlinkSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return self.custom_paginated_queryset(request, BankAccountHyperlinkSerializer)
 
 
-class PurchaseViewSet(viewsets.ViewSet):
+class PurchaseViewSet(ListPaginatedMixin, viewsets.ViewSet):
     queryset = Purchase.objects.all()
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['provider', 'car', 'buyer_for', 'bank_account']
@@ -61,9 +72,7 @@ class PurchaseViewSet(viewsets.ViewSet):
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        queryset = self.queryset
-        serializer = PurchaseHyperLinkSerializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return self.custom_paginated_queryset(request, PurchaseHyperLinkSerializer)
 
     def create(self, request):
         serializer = PurchaseCreateSerializer(data=request.data)
@@ -102,7 +111,7 @@ class PurchaseViewSet(viewsets.ViewSet):
         customer.save()
 
 
-class SaleViewSet(viewsets.ViewSet):
+class SaleViewSet(ListPaginatedMixin, viewsets.ViewSet):
     queryset = Sale.objects.all()
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['customer', 'car', 'seller', 'bank_account']
@@ -119,9 +128,7 @@ class SaleViewSet(viewsets.ViewSet):
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        queryset = self.queryset
-        serializer = SaleHyperLinkSerializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return self.custom_paginated_queryset(request, SaleHyperLinkSerializer)
 
     def create(self, request):
         serializer = SaleSerializer(data=request.data)
