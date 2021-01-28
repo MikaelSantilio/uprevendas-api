@@ -19,13 +19,10 @@ class BankAccountSerializer(serializers.ModelSerializer):
 class BankAccountHATEOASerializer(serializers.ModelSerializer):
 
     links = serializers.SerializerMethodField()
-    # detail = serializers.HyperlinkedIdentityField(
-    #     read_only=True,
-    #     view_name='api:core:bank-account-detail', lookup_field='pk')
 
     class Meta:
         model = BankAccount
-        fields = ('id', 'bank', 'balance', 'detail')
+        fields = ('id', 'bank', 'balance', 'links')
 
     def get_links(self, obj):
         data = []
@@ -92,13 +89,10 @@ class PurchaseSerializer(serializers.ModelSerializer):
 class PurchaseHATEOASerializer(serializers.ModelSerializer):
 
     links = serializers.SerializerMethodField()
-    # detail = serializers.HyperlinkedIdentityField(
-    #     read_only=True,
-    #     view_name='api:comprar-detail', lookup_field='pk')
 
     class Meta:
         model = Purchase
-        fields = ('created_at', 'value', 'detail')
+        fields = ('created_at', 'value', 'links')
 
     def get_links(self, obj):
         data = []
@@ -137,13 +131,10 @@ class SaleSerializer(serializers.ModelSerializer):
 class SaleHATEOASerializer(serializers.ModelSerializer):
 
     links = serializers.SerializerMethodField()
-    # detail = serializers.HyperlinkedIdentityField(
-    #     read_only=True,
-    #     view_name='api:vender-detail', lookup_field='pk')
 
     class Meta:
         model = Sale
-        fields = ('created_at', 'value', 'detail')
+        fields = ('created_at', 'value', 'links')
 
     def get_links(self, obj):
         data = []
