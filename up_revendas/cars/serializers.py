@@ -41,7 +41,7 @@ class CarDetailSerializer(CarSerializer):
     model = serializers.CharField(source='model.name')
 
 
-class CarHyperlinkSerializer(serializers.ModelSerializer):
+class CarHATEOASerializer(serializers.ModelSerializer):
     brand = serializers.SlugRelatedField(
         read_only=True,
         slug_field='name'

@@ -119,7 +119,7 @@ class MyProfileSerializer(serializers.ModelSerializer):
         return data
 
 
-class UserHyperlinkSerializer(serializers.ModelSerializer):
+class UserHATEOASerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
     options = serializers.SerializerMethodField()
 

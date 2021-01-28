@@ -19,7 +19,7 @@ from up_revendas.users.serializers import (
     FunctionSerializer,
     MyProfileSerializer,
     ProfileDetailSerializer,
-    UserHyperlinkSerializer,
+    UserHATEOASerializer,
     UserListSerializer,
 )
 
@@ -46,7 +46,7 @@ class CreateUserAPIView(APIView):
         serializer = CreateUserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            data = UserHyperlinkSerializer(user, context={'request': request}).data
+            data = UserHATEOASerializer(user, context={'request': request}).data
             # pdb.set_trace()
 
             return Response(status=status.HTTP_200_OK, data=data)

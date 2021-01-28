@@ -16,7 +16,7 @@ class BankAccountSerializer(serializers.ModelSerializer):
         fields = ('id', 'bank', 'agency', 'account_type', 'name', 'cpf', 'balance')
 
 
-class BankAccountHyperlinkSerializer(serializers.ModelSerializer):
+class BankAccountHATEOASerializer(serializers.ModelSerializer):
 
     links = serializers.SerializerMethodField()
     # detail = serializers.HyperlinkedIdentityField(
@@ -89,7 +89,7 @@ class PurchaseSerializer(serializers.ModelSerializer):
         fields = ('car', 'provider', 'buyer_for', 'value', 'bank_account')
 
 
-class PurchaseHyperLinkSerializer(serializers.ModelSerializer):
+class PurchaseHATEOASerializer(serializers.ModelSerializer):
 
     links = serializers.SerializerMethodField()
     # detail = serializers.HyperlinkedIdentityField(
@@ -134,7 +134,7 @@ class SaleSerializer(serializers.ModelSerializer):
         fields = ('car', 'customer', 'seller', 'value', 'bank_account')
 
 
-class SaleHyperLinkSerializer(serializers.ModelSerializer):
+class SaleHATEOASerializer(serializers.ModelSerializer):
 
     links = serializers.SerializerMethodField()
     # detail = serializers.HyperlinkedIdentityField(

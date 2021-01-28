@@ -11,12 +11,12 @@ from up_revendas.cars.serializers import CarSerializer
 from up_revendas.core.models import BankAccount, Customer, Purchase, Sale
 from up_revendas.core.permissions import IsEmployee, IsStoreManager
 from up_revendas.core.serializers import (
-    BankAccountHyperlinkSerializer,
+    BankAccountHATEOASerializer,
     BankAccountSerializer,
     PurchaseCreateSerializer,
-    PurchaseHyperLinkSerializer,
+    PurchaseHATEOASerializer,
     PurchaseSerializer,
-    SaleHyperLinkSerializer,
+    SaleHATEOASerializer,
     SaleSerializer,
 )
 
@@ -52,7 +52,7 @@ class BankAccountViewSet(ListPaginatedMixin, viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        return self.custom_paginated_queryset(request, BankAccountHyperlinkSerializer)
+        return self.custom_paginated_queryset(request, BankAccountHATEOASerializer)
 
 
 class PurchaseViewSet(ListPaginatedMixin, viewsets.ViewSet):
@@ -72,7 +72,7 @@ class PurchaseViewSet(ListPaginatedMixin, viewsets.ViewSet):
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        return self.custom_paginated_queryset(request, PurchaseHyperLinkSerializer)
+        return self.custom_paginated_queryset(request, PurchaseHATEOASerializer)
 
     def create(self, request):
         serializer = PurchaseCreateSerializer(data=request.data)
@@ -128,7 +128,7 @@ class SaleViewSet(ListPaginatedMixin, viewsets.ViewSet):
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        return self.custom_paginated_queryset(request, SaleHyperLinkSerializer)
+        return self.custom_paginated_queryset(request, SaleHATEOASerializer)
 
     def create(self, request):
         serializer = SaleSerializer(data=request.data)

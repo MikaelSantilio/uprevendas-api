@@ -10,7 +10,7 @@ from up_revendas.cars.models import Brand, Car, Model
 from up_revendas.cars.serializers import (
     BrandSerializer,
     CarDetailSerializer,
-    CarHyperlinkSerializer,
+    CarHATEOASerializer,
     CarSerializer,
     ModelSerializer,
 )
@@ -95,7 +95,7 @@ class CarViewSet(ListPaginatedMixin, viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        return self.custom_paginated_queryset(request, CarHyperlinkSerializer)
+        return self.custom_paginated_queryset(request, CarHATEOASerializer)
 
     @action(detail=False, methods=["get"])
     def choices(self, request, format=None):
