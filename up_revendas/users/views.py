@@ -1,15 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from up_revendas.core.permissions import IsEmployee, IsStoreManager
-from up_revendas.users.models import Customer, Function
+from up_revendas.users.models import Function
 from up_revendas.users.serializers import (
     CreateUserSerializer,
     CustomerSerializer,
@@ -138,29 +138,12 @@ class ProfileDetailAPIView(APIView):
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
 
-class SellersListAPIView(APIView):
-
-    permission_classes = (IsAuthenticated, )
-
-    def get(self, request, format=None):
-        users = User.objects.filter(Q(is_employee=True) | Q(is_store_manager=True))
-        serializer = UserIdSerializer(users, many=True)
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
-
-
-class CustomersListAPIView(APIView):
-
-    permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
-
-    def get(self, request, format=None):
-        customers = Customer.objects.all()
-        serializer = CustomerSerializer(customers, many=True)
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
-
-
 class UserListAPIView(APIView):
 
     permission_classes = [IsAdminUser | IsStoreManager | IsEmployee]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['is_employee', 'is_customer', 'is_store_manager']
+    ordering_fields = ['username']
 
     def get(self, request, format=None):
         users = User.objects.all()
