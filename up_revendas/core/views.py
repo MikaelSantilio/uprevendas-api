@@ -163,16 +163,16 @@ class SaleViewSet(ListPaginatedMixin, viewsets.ViewSet):
     @transaction.atomic
     def save_data(self, data):
 
-        car = get_object_or_404(Car, id=data['car'])
-        customer = get_object_or_404(Customer, id=data['customer'])
-        bank_account = get_object_or_404(BankAccount, id=data['bank_account'])
+        car = get_object_or_404(Car, pk=data['car'])
+        customer = get_object_or_404(Customer, pk=data['customer'])
+        bank_account = get_object_or_404(BankAccount, pk=data['bank_account'])
 
         if customer.balance < data['value']:
             return [False, {'detail': 'Cliente com fundos insuficientes!'}]
 
         elif data['value'] < car.min_sale_value:
-            raise [False,
-                   {'detail': f'Carro não pode ser vendido abaixo do valor minimo de R$ {car.min_sale_value:.2f}!'}]
+            return [False,
+                    {'detail': f'Carro não pode ser vendido abaixo do valor minimo de R$ {car.min_sale_value:.2f}!'}]
 
         elif car.sold is True:
             return [False, {'detail': 'Carro não disponível para venda!'}]
