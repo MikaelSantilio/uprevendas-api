@@ -76,7 +76,7 @@ class PurchaseCreateSerializer(serializers.Serializer):
     provider = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all(), required=True)
     buyer_for = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(
         Q(is_store_manager=True)), required=True)
-    value = serializers.FloatField(required=True),
+    value = serializers.FloatField(required=True)
     bank_account = serializers.PrimaryKeyRelatedField(queryset=BankAccount.objects.all(), required=True)
 
 

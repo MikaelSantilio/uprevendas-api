@@ -78,11 +78,14 @@ class PurchaseViewSet(ListPaginatedMixin, viewsets.ViewSet):
         serializer = PurchaseCreateSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            self.save_data(data)
 
-            return Response({'detail': 'Compra registrada com sucesso'}, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            response = self.save_data(data)
+            if response[0] is True:
+                return Response(response[1], status=status.HTTP_200_OK)
+            else:
+                return Response(response[1], status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
         purchase = get_object_or_404(Purchase, pk=pk)
@@ -92,23 +95,33 @@ class PurchaseViewSet(ListPaginatedMixin, viewsets.ViewSet):
     @transaction.atomic
     def save_data(self, data):
 
-        car = CarSerializer(data=data['car']).save()
+        if data['car']['min_sale_value'] < data['value']:
+            return [False, {'detail': 'Valor mínimo de venda deve ser maior ou igual ao valor de compra.'}]
+
+        car_serializer = CarSerializer(data=data['car'])
+
+        if not car_serializer.is_valid():
+            return [False, car_serializer.errors]
+
+        car = car_serializer.save()
         data['car'] = car.id
 
-        customer = get_object_or_404(Customer, id=data['provider'])
-
-        bank_account = get_object_or_404(BankAccount, id=data['bank_account'])
+        customer = get_object_or_404(Customer, pk=data['provider'])
+        bank_account = get_object_or_404(BankAccount, pk=data['bank_account'])
 
         if bank_account.balance < data['value']:
-            raise HttpResponseBadRequest(message='Conta bancária com fundos insuficientes!')
+            return [False, {'detail': 'Conta bancária com fundos insuficientes!'}]
 
         bank_account.balance -= data['value']
         customer.balance += data['value']
 
-        serializer = PurchaseSerializer(data)
-        serializer.save()
-        bank_account.save()
-        customer.save()
+        serializer = PurchaseSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            bank_account.save()
+            customer.save()
+            return [True, {'detail': 'Compra registrada com sucesso'}]
+        return [False, serializer.errors]
 
 
 class SaleViewSet(ListPaginatedMixin, viewsets.ViewSet):
@@ -134,11 +147,13 @@ class SaleViewSet(ListPaginatedMixin, viewsets.ViewSet):
         serializer = SaleSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            self.save_data(data)
+            response = self.save_data(data)
+            if response[0] is True:
+                return Response(response[1], status=status.HTTP_200_OK)
+            else:
+                return Response(response[1], status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({'detail': 'Venda registrada com sucesso'}, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
         sale = get_object_or_404(Sale, pk=pk)
@@ -153,21 +168,24 @@ class SaleViewSet(ListPaginatedMixin, viewsets.ViewSet):
         bank_account = get_object_or_404(BankAccount, id=data['bank_account'])
 
         if customer.balance < data['value']:
-            raise HttpResponseBadRequest(message='Cliente com fundos insuficientes!')
+            return [False, {'detail': 'Cliente com fundos insuficientes!'}]
 
         elif data['value'] < car.min_sale_value:
-            raise HttpResponseBadRequest(
-                message=f'Carro não pode ser vendido abaixo do valor minimo de R$ {car.min_sale_value:.2f}!')
+            raise [False,
+                   {'detail': f'Carro não pode ser vendido abaixo do valor minimo de R$ {car.min_sale_value:.2f}!'}]
 
         elif car.sold is True:
-            raise HttpResponseBadRequest(message='Carro não disponível para venda!')
+            return [False, {'detail': 'Carro não disponível para venda!'}]
 
         customer.balance -= data['value']
         bank_account.balance += data['value']
         car.sold = True
 
         serializer = SaleSerializer(data=data)
-        serializer.save()
-        bank_account.save()
-        customer.save()
-        car.save()
+        if serializer.is_valid():
+            serializer.save()
+            bank_account.save()
+            customer.save()
+            car.save()
+            return [True, {'detail': 'Venda registrada com sucesso'}]
+        return [False, serializer.errors]
