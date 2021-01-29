@@ -150,13 +150,7 @@ class SaleHATEOASerializer(serializers.ModelSerializer):
                     "rel": "self",
                     "uri": request.build_absolute_uri(
                         reverse("api:core:sale-detail", kwargs={'pk': obj.id}))
-                },
-                {
-                    "type": "GET",
-                    "rel": "self",
-                    "uri": request.build_absolute_uri(
-                        reverse("api:core:sale-detail", kwargs={'pk': obj.id}))
-                },
+                }
             ]
 
         return data
