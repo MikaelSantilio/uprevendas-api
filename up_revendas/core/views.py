@@ -55,7 +55,7 @@ class BankAccountViewSet(ListPaginatedMixin, viewsets.ModelViewSet):
         return self.custom_paginated_queryset(request, BankAccountHATEOASerializer)
 
 
-class PurchaseViewSet(ListPaginatedMixin, viewsets.ViewSet):
+class PurchaseViewSet(ListPaginatedMixin, viewsets.GenericViewSet):
     queryset = Purchase.objects.all()
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['provider', 'car', 'buyer_for', 'bank_account']
@@ -124,7 +124,7 @@ class PurchaseViewSet(ListPaginatedMixin, viewsets.ViewSet):
         return [False, serializer.errors]
 
 
-class SaleViewSet(ListPaginatedMixin, viewsets.ViewSet):
+class SaleViewSet(ListPaginatedMixin, viewsets.GenericViewSet):
     queryset = Sale.objects.all()
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['customer', 'car', 'seller', 'bank_account']
