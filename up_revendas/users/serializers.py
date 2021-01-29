@@ -186,19 +186,17 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 
 class ProfileDetailSerializer(serializers.ModelSerializer):
-    profile_detail = ProfileSerializer(source='profile')
-    others = serializers.SerializerMethodField()
+    profile = ProfileSerializer()
+    detail = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ["username", "email", "name", "profile_detail", "others"]
+        fields = ["username", "email", "name", "profile", "detail"]
 
-    def get_others(self, obj):
+    def get_detail(self, obj):
         data = {}
 
-        request = self.context['request']
-
-        if request.user.is_customer:
+        if obj.is_customer:
 
             customer_obj = get_object_or_404(Customer, user=obj)
 
@@ -206,7 +204,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
                 "balance": customer_obj.balance
             }
 
-        if request.user.is_employee:
+        if obj.is_employee:
             employee_obj = get_object_or_404(Employee, user=obj)
 
             data["employee"] = {
@@ -215,7 +213,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
                 "entry_date": employee_obj.entry_date
             }
 
-        if request.user.is_store_manager:
+        if obj.is_store_manager:
             data['store-manager'] = True
 
         return data
