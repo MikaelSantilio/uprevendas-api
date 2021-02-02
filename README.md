@@ -53,7 +53,7 @@ serão de detalhes, edição e exclusão do carro. Senão apenas o link de detal
         "uri": "https://uprevendas-api.herokuapp.com/api/carros/2/"
     },
     {
-        "type": "GET",
+        "type": "PUT",
         "rel": "carro_atualizacao",
         "uri": "https://uprevendas-api.herokuapp.com/api/carros/2/"
     },
@@ -116,7 +116,7 @@ Gerente será mostrado os links para a listagem das compras e para listagem das 
 
 Se for Funcionário será mostrado o link para a listagem das vendas dele. 
 
-Se for um objeto Cliente será  mostrado o link para as compras e vendas que o objeto ele estava envolvido.
+Se for um objeto Cliente será mostrado o link para as compras e vendas que o objeto ele estava envolvido.
 
 ```json
 {
@@ -208,12 +208,12 @@ A listagem e registro de vendas é permitida apenas a usuários do tipo Funcion�
 Os filtros disponíveis para listagem de carros são:
 **'brand', 'model', 'car_type', 'color' e 'transmission'**
 
-As ordenaçoes disponíveis para listagem de carros são:
+As ordenações disponíveis para listagem de carros são:
 **'min_sale_value', 'mileage', 'year' e 'version'**
 
 #### api/contas-bancarias
 
-O filtro disponíveil para listagem de contas é: 
+O filtro disponível para listagem de contas é: 
 **'bank'**
 
 A ordenação disponível para listagem de contas é:
@@ -224,7 +224,7 @@ A ordenação disponível para listagem de contas é:
 Os filtros disponíveis para listagem de compras são:
 **'provider', 'car', 'buyer_for' e 'bank_account'**
 
-As ordenaçoes disponíveis para listagem de compras são:
+As ordenações disponíveis para listagem de compras são:
 **'value', 'created_at' e 'updated_at'**
 
 #### api/venda
@@ -232,7 +232,7 @@ As ordenaçoes disponíveis para listagem de compras são:
 Os filtros disponíveis para listagem de vendas são:
 **'customer', 'car', 'seller' e 'bank_account'**
 
-As ordenaçoes disponíveis para listagem de vendas são:
+As ordenações disponíveis para listagem de vendas são:
 **'value', 'created_at' e 'updated_at'**
 
 #### api/perfil
@@ -245,16 +245,32 @@ Os filtros disponíveis para listagem de usuários são:
 
 Utilizado JWT através da biblioteca [Simple JWT](https://github.com/SimpleJWT/django-rest-framework-simplejwt)
 
+```python
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_HEADER_TYPES': ('JWT',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+}
+```
+
 ### Paginação e Throttling
 
-A paginição na listagem de objetos foi definida como 5 por página.
+A paginação na listagem de objetos foi definida como 5 por página.
 
-A limitação de request para usuários não autenticados é de 100 por dia e para
-usuários autenticados é de 1000 por dia.
+A limitação de request para usuários não autenticados é de 50 por dia e para
+usuários autenticados é de 500 por dia.
+
+```python
+"DEFAULT_THROTTLE_RATES": {
+    "anon": "50/day",
+    "user": "500/day"
+}
+```
 
 ### Documentação
 
-A documentação utilizada é Swagger, disponível no link:
+A forma de documentação utilizada é Swagger, disponível no link:
 https://uprevendas-api.herokuapp.com/api/swagger/
 
 
