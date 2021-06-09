@@ -14,7 +14,7 @@ Video demonstrativo 🎞️: https://www.youtube.com/watch?v=iAdb1s6fVd8
 
 Online 🌐: https://uprevendas-api.herokuapp.com/api/
 
-Usuário Gerente - username: hugo.carlos, senha: django01
+<!-- Usuário Gerente - username: hugo.carlos, senha: django01 -->
 
 Requests Insominia: https://github.com/MikaelSantilio/uprevendas-api/blob/master/Insomnia_2021-01-30.json
 
